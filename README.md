@@ -53,7 +53,7 @@ POST https://ai-financial-recommendation-service-production.up.railway.app/predi
 
 Endpoint `/predict` digunakan untuk mengirim fitur keuangan hasil agregasi transaksi dan menerima hasil prediksi berupa financial risk, behavior segment, dan recommendation.
 
-> Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
+Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
 
 ---
 
