@@ -177,11 +177,11 @@ POST https://ai-financial-recommendation-service-production.up.railway.app/predi
 ```
 
 Endpoint ini menerima fitur keuangan pengguna dan mengembalikan hasil prediksi financial risk, behavior segment, dan rekomendasi.
-
----
-
 ```md
 > Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
+---
+
+
 
 ## Request Body Example
 
