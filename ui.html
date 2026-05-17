@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Financial Recommendation Simulator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1f2937;
+    }
+
+    p {
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .result {
+      margin-top: 28px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      display: none;
+    }
+
+    .result h2 {
+      margin-top: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0ecff;
+      color: #1e40af;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .recommendation {
+      margin-top: 16px;
+      padding: 16px;
+      background: #ecfdf5;
+      border-left: 5px solid #10b981;
+      border-radius: 8px;
+    }
+
+    .error {
+      background: #fef2f2;
+      border-left: 5px solid #ef4444;
+      color: #991b1b;
+    }
+
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>AI Financial Recommendation Simulator</h1>
+    <p>
+      Simulasi ini menghitung fitur keuangan bulanan dari input sederhana,
+      lalu mengirimkannya ke model AI untuk memprediksi financial risk,
+      behavior segment, dan rekomendasi keuangan.
+    </p>
+
+    <div class="grid">
+      <div>
+        <label>Total Income</label>
+        <input id="total_income" type="number" value="5200000" />
+      </div>
+
+      <div>
+        <label>Jumlah Transaksi</label>
+        <input id="tx_count" type="number" value="42" />
+      </div>
+
+      <div>
+        <label>Food Expense</label>
+        <input id="food_expense" type="number" value="984000" />
+      </div>
+
+      <div>
+        <label>Transport Expense</label>
+        <input id="transport_expense" type="number" value="492000" />
+      </div>
+
+      <div>
+        <label>Entertainment Expense</label>
+        <input id="entertainment_expense" type="number" value="328000" />
+      </div>
+
+      <div>
+        <label>Shopping Expense</label>
+        <input id="shopping_expense" type="number" value="1353000" />
+      </div>
+
+      <div>
+        <label>Health Expense</label>
+        <input id="health_expense" type="number" value="205000" />
+      </div>
+
+      <div>
+        <label>Other Expense</label>
+        <input id="other_expense" type="number" value="738000" />
+      </div>
+
+      <div>
+        <label>Expense Trend</label>
+        <input id="expense_trend" type="number" value="250000" />
+      </div>
+
+      <div>
+        <label>Rolling 3 Month Average</label>
+        <input id="rolling_3m_avg" type="number" value="950000" />
+      </div>
+    </div>
+
+    <button onclick="predict()">Predict Financial Profile</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    function getNumber(id) {
+      return Number(document.getElementById(id).value || 0);
+    }
+
+    function round(value, digits = 4) {
+      return Number(value.toFixed(digits));
+    }
+
+    async function predict() {
+      const totalIncome = getNumber("total_income");
+      const txCount = getNumber("tx_count");
+
+      const foodExpense = getNumber("food_expense");
+      const transportExpense = getNumber("transport_expense");
+      const entertainmentExpense = getNumber("entertainment_expense");
+      const shoppingExpense = getNumber("shopping_expense");
+      const healthExpense = getNumber("health_expense");
+      const otherExpense = getNumber("other_expense");
+
+      const expenseTrend = getNumber("expense_trend");
+      const rolling3mAvg = getNumber("rolling_3m_avg");
+
+      const totalExpense =
+        foodExpense +
+        transportExpense +
+        entertainmentExpense +
+        shoppingExpense +
+        healthExpense +
+        otherExpense;
+
+      const netCashflow = totalIncome - totalExpense;
+
+      const avgExpense = txCount > 0 ? totalExpense / txCount : 0;
+
+      const foodRatio = totalExpense > 0 ? foodExpense / totalExpense : 0;
+      const transportRatio = totalExpense > 0 ? transportExpense / totalExpense : 0;
+      const entertainmentRatio = totalExpense > 0 ? entertainmentExpense / totalExpense : 0;
+      const shoppingRatio = totalExpense > 0 ? shoppingExpense / totalExpense : 0;
+      const healthRatio = totalExpense > 0 ? healthExpense / totalExpense : 0;
+      const otherRatio = totalExpense > 0 ? otherExpense / totalExpense : 0;
+
+      const savingRate = totalIncome > 0 ? netCashflow / totalIncome : 0;
+
+      const payload = {
+        total_income: totalIncome,
+        total_expense: totalExpense,
+        net_cashflow: netCashflow,
+        tx_count: txCount,
+        avg_expense: round(avgExpense, 2),
+        food_ratio: round(foodRatio),
+        transport_ratio: round(transportRatio),
+        entertainment_ratio: round(entertainmentRatio),
+        shopping_ratio: round(shoppingRatio),
+        health_ratio: round(healthRatio),
+        other_ratio: round(otherRatio),
+        saving_rate: round(savingRate),
+        expense_trend: expenseTrend,
+        rolling_3m_avg: rolling3mAvg
+      };
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = "<p>Loading prediction...</p>";
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        const prediction = data.prediction;
+        const financialRisk = prediction.financial_risk;
+        const behaviorSegment = prediction.behavior_segment;
+        const recommendation = prediction.recommendation;
+
+        resultDiv.className = "result";
+        resultDiv.innerHTML = `
+          <h2>Prediction Result</h2>
+
+          <div>
+            <span class="badge">Financial Risk: ${financialRisk.label}</span>
+            <p>Confidence: ${(financialRisk.confidence * 100).toFixed(2)}%</p>
+          </div>
+
+          <div>
+            <span class="badge">Behavior Segment: ${behaviorSegment.label}</span>
+            <p>Confidence: ${(behaviorSegment.confidence * 100).toFixed(2)}%</p>
+          </div>
+
+          <div class="recommendation">
+            <h3>${recommendation.title}</h3>
+            <p>${recommendation.message}</p>
+          </div>
+
+          <h3>Generated Model Input</h3>
+          <pre>${JSON.stringify(payload, null, 2)}</pre>
+        `;
+      } catch (error) {
+        resultDiv.className = "result error";
+        resultDiv.innerHTML = `
+          <h2>Error</h2>
+          <p>Gagal memanggil endpoint /predict.</p>
+          <pre>${error}</pre>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
