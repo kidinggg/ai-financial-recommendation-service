@@ -1,6 +1,6 @@
 # AI Financial Recommendation Service
 
-AI Financial Recommendation Service adalah service berbasis FastAPI yang digunakan untuk memprediksi kondisi keuangan pengguna dan memberikan rekomendasi keuangan berdasarkan data agregasi transaksi bulanan.
+AI Financial Recommendation Service adalah service berbasis FastAPI yang digunakan untuk memprediksi kondisi keuangan pengguna dan memberikan rekomendasi keuangan berdasarkan data agregasi transaksi.
 
 Service ini menggunakan dua model TensorFlow:
 
@@ -21,6 +21,37 @@ Service ini menggunakan dua model TensorFlow:
    - Entertainment Heavy
 
 Hasil prediksi dari kedua model digunakan untuk menghasilkan rekomendasi keuangan yang lebih personal.
+
+---
+
+## Deployment
+
+AI service sudah dideploy menggunakan Railway dan dapat diakses melalui URL berikut:
+
+```text
+https://ai-financial-recommendation-service-production.up.railway.app
+```
+
+Available online pages:
+
+```text
+API Root:
+https://ai-financial-recommendation-service-production.up.railway.app/
+
+Swagger API Documentation:
+https://ai-financial-recommendation-service-production.up.railway.app/docs
+
+Simulation UI:
+https://ai-financial-recommendation-service-production.up.railway.app/ui
+```
+
+Prediction endpoint:
+
+```http
+POST https://ai-financial-recommendation-service-production.up.railway.app/predict
+```
+
+Endpoint `/predict` digunakan untuk mengirim fitur keuangan hasil agregasi transaksi dan menerima hasil prediksi berupa financial risk, behavior segment, dan recommendation.
 
 ---
 
@@ -60,9 +91,9 @@ python -m pip install -r requirements.txt
 
 ---
 
-## Run API Service
+## Run API Service Locally
 
-Jalankan service dengan perintah:
+Jalankan service secara lokal dengan perintah:
 
 ```bash
 python -m uvicorn app:app --reload
@@ -107,6 +138,12 @@ Response:
 http://127.0.0.1:8000/docs
 ```
 
+Atau versi deployment:
+
+```text
+https://ai-financial-recommendation-service-production.up.railway.app/docs
+```
+
 Digunakan untuk testing endpoint API melalui UI bawaan FastAPI.
 
 ---
@@ -115,6 +152,12 @@ Digunakan untuk testing endpoint API melalui UI bawaan FastAPI.
 
 ```text
 http://127.0.0.1:8000/ui
+```
+
+Atau versi deployment:
+
+```text
+https://ai-financial-recommendation-service-production.up.railway.app/ui
 ```
 
 Digunakan untuk simulasi prediksi melalui form sederhana. User dapat memasukkan total income dan pengeluaran per kategori, lalu sistem akan menghitung fitur yang dibutuhkan model secara otomatis.
@@ -127,9 +170,20 @@ Digunakan untuk simulasi prediksi melalui form sederhana. User dapat memasukkan 
 POST /predict
 ```
 
-Endpoint ini menerima fitur keuangan bulanan pengguna dan mengembalikan hasil prediksi financial risk, behavior segment, dan rekomendasi.
+Deployment endpoint:
 
-Request body:
+```http
+POST https://ai-financial-recommendation-service-production.up.railway.app/predict
+```
+
+Endpoint ini menerima fitur keuangan pengguna dan mengembalikan hasil prediksi financial risk, behavior segment, dan rekomendasi.
+
+---
+
+```md
+> Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
+
+## Request Body Example
 
 ```json
 {
@@ -150,7 +204,9 @@ Request body:
 }
 ```
 
-Response example:
+---
+
+## Response Example
 
 ```json
 {
@@ -193,8 +249,8 @@ Response example:
 
 | Feature | Description |
 |---|---|
-| total_income | Total pemasukan user dalam satu periode/bulan |
-| total_expense | Total pengeluaran user dalam satu periode/bulan |
+| total_income | Total pemasukan user dalam satu periode |
+| total_expense | Total pengeluaran user dalam satu periode |
 | net_cashflow | Selisih antara pemasukan dan pengeluaran |
 | tx_count | Jumlah transaksi dalam periode tersebut |
 | avg_expense | Rata-rata nominal pengeluaran |
@@ -206,7 +262,7 @@ Response example:
 | other_ratio | Rasio pengeluaran kategori other terhadap total expense |
 | saving_rate | Rasio cashflow terhadap total income |
 | expense_trend | Perubahan total pengeluaran dibanding periode sebelumnya |
-| rolling_3m_avg | Rata-rata cashflow 3 bulan terakhir |
+| rolling_3m_avg | Rata-rata cashflow 3 periode terakhir |
 
 ---
 
@@ -223,17 +279,19 @@ Di aplikasi sebenarnya, user cukup mencatat transaksi seperti:
 - transaction date
 - description
 
-Kemudian backend atau proses agregasi data menghitung fitur bulanan seperti:
+Kemudian backend atau proses agregasi data menghitung fitur seperti:
 
 - total_income
 - total_expense
 - net_cashflow
+- tx_count
+- avg_expense
 - category ratio
 - saving_rate
 - expense_trend
 - rolling_3m_avg
 
-Setelah fitur bulanan terbentuk, data tersebut dikirim ke endpoint `/predict` untuk mendapatkan hasil prediksi dan rekomendasi.
+Setelah fitur agregasi terbentuk, data tersebut dikirim ke endpoint `/predict` untuk mendapatkan hasil prediksi dan rekomendasi.
 
 ---
 
@@ -257,16 +315,54 @@ Frontend menampilkan hasil ke user
 
 Untuk MVP, sistem dapat menggunakan pendekatan berikut:
 
-1. **Default monthly analysis**  
+1. **Default Monthly Analysis**  
    Secara default, sistem menjalankan analisis keuangan secara bulanan.
 
-2. **Manual analysis button**  
+2. **Manual Analysis Button**  
    Frontend dapat menyediakan tombol seperti "Analisis Keuangan Saya" atau "Dapatkan Rekomendasi" agar user bisa meminta analisis kapan saja.
 
-3. **Optional weekly analysis**  
+3. **Optional Weekly Analysis**  
    Jika diperlukan, user dapat diberikan opsi untuk memilih frekuensi analisis, misalnya mingguan atau bulanan.
 
 Jika hasil prediksi menunjukkan `At Risk` atau `Negative Cashflow`, frontend dapat menampilkan hasilnya sebagai alert atau warning agar lebih terlihat oleh user.
+
+---
+
+## Front-End Usage Example
+
+Contoh pemanggilan endpoint dari frontend menggunakan JavaScript:
+
+```javascript
+const response = await fetch("https://ai-financial-recommendation-service-production.up.railway.app/predict", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    total_income: 5200000,
+    total_expense: 4100000,
+    net_cashflow: 1100000,
+    tx_count: 42,
+    avg_expense: 97619,
+    food_ratio: 0.24,
+    transport_ratio: 0.12,
+    entertainment_ratio: 0.08,
+    shopping_ratio: 0.33,
+    health_ratio: 0.05,
+    other_ratio: 0.18,
+    saving_rate: 0.21,
+    expense_trend: 250000,
+    rolling_3m_avg: 950000
+  })
+});
+
+const data = await response.json();
+
+console.log(data.prediction.financial_risk.label);
+console.log(data.prediction.behavior_segment.label);
+console.log(data.prediction.recommendation.title);
+console.log(data.prediction.recommendation.message);
+```
 
 ---
 
@@ -298,4 +394,4 @@ Current status:
 - Swagger UI tersedia
 - Simulation UI tersedia
 - Recommendation logic tersedia
-- Service siap untuk deployment
+- Service berhasil dideploy menggunakan Railway
