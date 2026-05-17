@@ -53,6 +53,8 @@ POST https://ai-financial-recommendation-service-production.up.railway.app/predi
 
 Endpoint `/predict` digunakan untuk mengirim fitur keuangan hasil agregasi transaksi dan menerima hasil prediksi berupa financial risk, behavior segment, dan recommendation.
 
+> Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
+
 ---
 
 ## Project Structure
@@ -134,11 +136,13 @@ Response:
 
 ### Swagger UI
 
+Local:
+
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-Atau versi deployment:
+Deployment:
 
 ```text
 https://ai-financial-recommendation-service-production.up.railway.app/docs
@@ -150,11 +154,13 @@ Digunakan untuk testing endpoint API melalui UI bawaan FastAPI.
 
 ### Simulation UI
 
+Local:
+
 ```text
 http://127.0.0.1:8000/ui
 ```
 
-Atau versi deployment:
+Deployment:
 
 ```text
 https://ai-financial-recommendation-service-production.up.railway.app/ui
@@ -166,22 +172,21 @@ Digunakan untuk simulasi prediksi melalui form sederhana. User dapat memasukkan 
 
 ### Prediction Endpoint
 
+Local:
+
 ```http
-POST /predict
+POST http://127.0.0.1:8000/predict
 ```
 
-Deployment endpoint:
+Deployment:
 
 ```http
 POST https://ai-financial-recommendation-service-production.up.railway.app/predict
 ```
 
 Endpoint ini menerima fitur keuangan pengguna dan mengembalikan hasil prediksi financial risk, behavior segment, dan rekomendasi.
-```md
-> Note: Endpoint ini masih bersifat public untuk kebutuhan development dan demo MVP. Untuk production, endpoint dapat ditambahkan API key atau authentication agar hanya dapat diakses oleh service resmi.
+
 ---
-
-
 
 ## Request Body Example
 
